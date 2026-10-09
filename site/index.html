@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CP04 - Containerizando o Portal | FIAP</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #1a1a2e;
+      --magenta: #e91e63;
+      --cyan: #00bcd4;
+      --white: #ffffff;
+      --gray: #b0b0b0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+      background-image: radial-gradient(circle at 20% 20%, rgba(233,30,99,0.12), transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(0,188,212,0.10), transparent 40%);
+    }
+    .squares { display: flex; gap: 8px; margin-bottom: 24px; }
+    .squares span { width: 16px; height: 16px; display: block; }
+    .squares span:nth-child(1) { background: var(--magenta); }
+    .squares span:nth-child(2) { background: var(--cyan); }
+    .squares span:nth-child(3) { background: var(--white); }
+    .tag {
+      font-size: 13px; letter-spacing: 2px; color: var(--magenta);
+      font-weight: bold; margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(28px, 5.5vw, 48px);
+      font-weight: 900; line-height: 1.05; margin-bottom: 18px;
+    }
+    h1 .hl { color: var(--magenta); }
+    .sub { color: var(--gray); font-size: clamp(15px, 2.2vw, 18px); max-width: 680px; margin-bottom: 32px; }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px 28px;
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      text-align: left;
+    }
+    .card h2 {
+      color: var(--cyan);
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .card .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #23283a; }
+    .card .row:last-child { border-bottom: none; }
+    .card .row .k { color: var(--gray); font-size: 14px; }
+    .card .row .v { color: var(--white); font-weight: bold; font-size: 14px; text-align: right; }
+
+    .info {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 26px 30px;
+      max-width: 680px;
+      width: 100%;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      text-align: left;
+    }
+    .info h2 {
+      color: var(--magenta);
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .info h3 {
+      color: var(--cyan);
+      font-size: 15px;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+    .info p {
+      color: var(--gray);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    footer { margin-top: 20px; color: #6a6a78; font-size: 12px; line-height: 1.6; }
+    footer a { color: var(--cyan); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="squares"><span></span><span></span><span></span></div>
+  <div class="tag">DEVSECOPS AND CLOUD COMPUTING</div>
+
+  <h1>Portal Arcanjo SA <span class="hl">containerizado</span></h1>
+  <p class="sub">Prova de conceito: esta página está sendo servida por um container Docker publicado no Docker Hub e executado em uma instância EC2 na AWS.</p>
+
+  <div class="card">
+    <h2>Equipe</h2>
+    <div class="row"><span class="k">Camila do Prado Padalino</span><span class="v">RM 98316</span></div>
+    <div class="row"><span class="k">Gabriel Teixeira Machado</span><span class="v">RM 551570</span></div>
+    <div class="row"><span class="k">Felipe Cavalcante Bressane</span><span class="v">RM 97688</span></div>
+    <div class="row"><span class="k">Turma</span><span class="v">4ESPV</span></div>
+  </div>
+
+  <div class="info">
+    <h2>Como funcionam os containers: cgroups e namespaces</h2>
+    <p>Containers não usam virtualização de hardware como uma VM. Eles rodam diretamente sobre o kernel Linux do host, e o isolamento é feito por dois mecanismos nativos do próprio sistema operacional.</p>
+
+    <h3>Namespaces — o que o processo enxerga</h3>
+    <p>Namespaces criam uma "bolha" de visão para o processo do container. Ele enxerga apenas seus próprios processos, sua própria rede e seu próprio sistema de arquivos, como se estivesse sozinho na máquina. Na prática, ele está dividindo o mesmo host com outros containers, mas não tem conhecimento disso. É essa ilusão de isolamento que dá ao container a sensação de ser uma máquina independente.</p>
+
+    <h3>Cgroups — quanto o processo pode usar</h3>
+    <p>Cgroups (control groups) limitam quanto de CPU, memória e outros recursos cada container pode consumir do host. Sem esse controle, um único container problemático poderia consumir todos os recursos da máquina e derrubar os demais containers vizinhos. É o que permite rodar dezenas de containers na mesma instância com segurança de consumo.</p>
+
+    <h3>Por que isso importa para o negócio</h3>
+    <p>Como não existe um sistema operacional convidado completo (como em uma VM), o container é muito mais leve e rápido para subir. O Docker apenas facilita o uso desses dois recursos que já existem no Linux, o que explica por que containers iniciam em segundos e ocupam poucos megabytes, ao invés de minutos e gigabytes como uma máquina virtual tradicional.</p>
+  </div>
+
+  <footer>
+    Checkpoint 04 &mdash; FIAP Engenharia de Software &mdash; Turma 4ESPV<br>
+    Container publicado no Docker Hub com a tag <strong>cp04</strong> &bull; Executando em EC2 na AWS
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var agora = new Date().toLocaleString('pt-BR');
+      var f = document.querySelector('footer');
+      f.innerHTML += '<br><span style="color:#4a4a58">Página carregada em ' + agora + '</span>';
+    });
+  </script>
+</body>
+</html>
